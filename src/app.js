@@ -1,4 +1,5 @@
 const express = require("express");
+const { uuid } = require("uuidv4");
 const cors = require("cors");
 
 // const { uuid } = require("uuidv4");
@@ -11,23 +12,75 @@ app.use(cors());
 const repositories = [];
 
 app.get("/repositories", (request, response) => {
-  // TODO
+  return response.json(repositories);
 });
 
 app.post("/repositories", (request, response) => {
-  // TODO
-});
+  const { title, url, techs } = request.body;
 
-app.put("/repositories/:id", (request, response) => {
-  // TODO
-});
+  repository = { id: uuid(), title: title, url: url, techs: techs, likes: 0 }
 
-app.delete("/repositories/:id", (req, res) => {
-  // TODO
+  repositories.push(repository);
+
+  return response.status(201).json(repository);
+  
 });
 
 app.post("/repositories/:id/like", (request, response) => {
-  // TODO
+  const { id } = request.params;
+
+  console.log(id);
+
+  repositoryIndex = repositories.findIndex(repository => repository.id === id);
+
+  if ( repositoryIndex < 0 ){
+    return response.status(400).json({ error: 'Nenhum repositorio foi encontrado com esse ID.' });
+  }
+
+  repositories[repositoryIndex].likes = repositories[repositoryIndex].likes + 1;
+
+  console.log(repositories[repositoryIndex]);
+
+  return response.status(200).json(repositories[repositoryIndex]);
+})
+
+app.put("/repositories/:id", (request, response) => {
+  const { title, url, techs } = request.body;
+  const { id } = request.params;
+  const likes = 0;
+
+  repositoryIndex = repositories.findIndex(repository => repository.id === id);
+
+  if ( repositoryIndex < 0 ){
+    return response.status(400).json({ error: 'Nenhum repositorio foi encontrado com esse ID.' });
+  }
+
+  const repository = {
+    id,
+    title,
+    url,
+    techs,
+    likes
+  }
+
+  repositories[repositoryIndex] = repository;
+
+  return response.status(200).json(repository);
+  
+});
+
+app.delete("/repositories/:id", (request, response) => {
+  const { id } = request.params;
+
+  repositoryIndex = repositories.findIndex(repository => repository.id === id);
+
+  if ( repositoryIndex < 0 ){
+    return response.status(400).json({ error: 'Nenhum repositorio foi encontrado com esse ID.' });
+  }
+
+  repositories.splice(repositoryIndex, 1);
+
+  return response.status(204).send();
 });
 
 module.exports = app;
